@@ -184,4 +184,13 @@ fn glider_moves_one_down_one_right_after_four() {
     let expected = grid_from(&[(2, 3), (3, 4), (4, 2), (4, 3), (4, 4)]);
     assert_eq!(grid, expected);
  }
+// Would catch a next_generation that wraps around the bottom edge (a row 0 cell would be born).
+#[test]
+fn bottom_row_blinker_after_one_generation_does_not_wrap() {
+    let start = grid_from(&[(9, 8), (9, 9), (9, 10)]);
+    let next = next_generation(&start);
+    assert_eq!(population(&next), 2);
+    assert_eq!(next, grid_from(&[(8, 9), (9, 9)]));
+}
+
 }
