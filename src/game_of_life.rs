@@ -2,11 +2,10 @@
 // generations, and preset patterns.
 //
 // TODO: remove the next line once every function below is used.
-#![allow(dead_code)]
 
 // TODO: add the imports you need (the pattern and generation prompts use
 // crate::input::read_int; waiting for Enter uses std::io).
-
+use crate::input::read_int;
 const ROWS: usize = 10;
 const COLS: usize = 20;
 type Grid = [[bool; COLS]; ROWS];
@@ -48,15 +47,6 @@ pub fn next_state(alive: bool, neighbors: u8) -> bool {
         (true, 2) | (true, 3) => true,
         (false, 3) => true,
         _ => false,
-    }
-}
-
-pub fn print_neighbor_counts(grid: &Grid) {
-    for r in 0..ROWS {
-        for c in 0..COLS {
-            print!("{}", count_neighbors(grid, r, c));
-        }
-        println!();
     }
 }
 
@@ -108,17 +98,25 @@ pub fn population(grid: &Grid) -> usize {
 // 2 block, 3 glider), ask how many generations, then print each generation with its
 // number and population, waiting for Enter between steps.
 pub fn play() {
-    let mut grid = new_grid();
-    grid[4][10] = true;
-    grid[5][10] = true;
-    grid[6][10] = true;
-    print_grid(&grid);
-    println!();
-    print_neighbor_counts(&grid);
-    println!();
-    let alive = grid[5][10];
-    let neighbors = count_neighbors(&grid, 5, 10);
-    println!("Center cell next generation: {}", if next_state(alive, neighbors) { "alive" } else { "dead" });
+    println!("1) Blinker  2) Block  3) Glider");
+    let choice = read_int("Which pattern? ", 1, 3) as u32;
+    let generations = read_int("How many generations? ", 1, 100) as usize;
+
+    let mut grid = load_pattern(choice);
+
+    for generation in 0..=generations {
+        println!("Generation {}, population {}", generation, population(&grid));
+        print_grid(&grid);
+
+        if generation < generations {
+            println!("Press Enter for the next generation.");
+            let mut line = String::new();
+            std::io::stdin()
+                .read_line(&mut line)
+                .expect("failed to read line");
+            grid = next_generation(&grid);
+        }
+    }
 }
 
 #[cfg(test)]
